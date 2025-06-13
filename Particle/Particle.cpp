@@ -19,7 +19,11 @@ void Particle::Render(int posX, int posY)
     DrawRectangle(posX, posY, size, size, color);
 }
 
-void Particle::Update(std::vector<std::vector<std::unique_ptr<Particle>>>& grid, int gridW, int gridH, int row, int col)
+void Particle::Update(
+    std::vector<std::vector<std::unique_ptr<Particle>>>& currGrid, 
+    std::vector<std::vector<std::unique_ptr<Particle>>>& newGrid, 
+    int gridW, int gridH, int row, int col
+)
 {}
 
 bool Particle::CanUpdate()

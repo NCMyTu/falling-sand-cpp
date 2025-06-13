@@ -9,9 +9,11 @@ EmptyParticle::EmptyParticle(int size, Color color)
 
 EmptyParticle::EmptyParticle(int size)
     : Particle(size, Color{0, 0, 0, 255})
-{}   
+{}
 
-void EmptyParticle::Update(std::vector<std::vector<std::unique_ptr<Particle>>>& grid, int gridW, int gridH, int row, int col)
-{
-
-}
+void EmptyParticle::Update(
+        std::vector<std::vector<std::unique_ptr<Particle>>>& currGrid, 
+        std::vector<std::vector<std::unique_ptr<Particle>>>& newGrid, 
+        int gridW, int gridH, int row, int col
+    )
+{}

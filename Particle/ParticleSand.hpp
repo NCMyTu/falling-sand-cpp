@@ -11,5 +11,9 @@ public:
     SandParticle(int size);
     ~SandParticle() = default;
 
-    void Update(std::vector<std::vector<std::unique_ptr<Particle>>>& grid, int gridW, int gridH, int row, int col) override;
+    void Update(
+        std::vector<std::vector<std::unique_ptr<Particle>>>& currGrid, 
+        std::vector<std::vector<std::unique_ptr<Particle>>>& newGrid, 
+        int gridW, int gridH, int row, int col
+    );
 };

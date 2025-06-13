@@ -1,8 +1,19 @@
+#include "Particle.hpp"
 #include "ParticleSand.hpp"
 #include "ParticleEmpty.hpp"
 #include "raylib.h"
 #include <vector>
 #include <memory>
+#include <random>
+#include <utility>
+
+float Random() 
+{
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+    return dist(gen);
+}
 
 SandParticle::SandParticle(int size, Color color)
     : Particle(size, color)
@@ -12,13 +23,41 @@ SandParticle::SandParticle(int size)
     : Particle(size, Color{194, 178, 128, 255})
 {}   
 
-void SandParticle::Update(std::vector<std::vector<std::unique_ptr<Particle>>>& grid, int gridW, int gridH, int row, int col)
-{
+void SandParticle::Update(
+    std::vector<std::vector<std::unique_ptr<Particle>>>& currGrid, 
+    std::vector<std::vector<std::unique_ptr<Particle>>>& newGrid, 
+    int gridW, int gridH, int row, int col
+) {
+    // bottom of grid, do nothing
     if (row >= gridW - 1)
+    {
+        newGrid[row][col] = std::move(currGrid[row][col]);
         return;
+    }
 
-    isUpdated = true;
+    if (Particle::IsType<EmptyParticle>(currGrid[row + 1][col]))
+    {
+        newGrid[row + 1][col] = std::move(currGrid[row][col]);
+        return;
+    }
+    else if (Particle::IsType<SandParticle>(currGrid[row + 1][col]))
+    {
+        bool canDownLeft = (col > 0) && (Particle::IsType<EmptyParticle>(currGrid[row + 1][col - 1]));
+        bool canDownRight = (col < gridH - 1) && (Particle::IsType<EmptyParticle>(currGrid[row + 1][col + 1]));
 
-    if (dynamic_cast<EmptyParticle*>(grid[row + 1][col].get()))
-        std::swap(grid[row][col], grid[row + 1][col]);
+        // choose a random direction if both are free
+        if (canDownLeft && canDownRight)
+            if (Random() < 0.5)
+                newGrid[row + 1][col - 1] = std::move(currGrid[row][col]);
+            else
+                newGrid[row + 1][col + 1] = std::move(currGrid[row][col]);
+        else if (canDownLeft)
+            newGrid[row + 1][col - 1] = std::move(currGrid[row][col]);
+        else if (canDownRight)
+            newGrid[row + 1][col + 1] = std::move(currGrid[row][col]); 
+        else
+            newGrid[row][col] = std::move(currGrid[row][col]);
+    }
+
+
 }
