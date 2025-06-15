@@ -4,16 +4,8 @@
 #include "raylib.h"
 #include <vector>
 #include <memory>
-#include <random>
 #include <utility>
-
-float Random() 
-{
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    static std::uniform_real_distribution<float> dist(0.0f, 1.0f);
-    return dist(gen);
-}
+#include "../Utility.hpp"
 
 SandParticle::SandParticle(int size, Color color)
     : Particle(size, color)
@@ -47,7 +39,7 @@ void SandParticle::Update(
 
         // choose a random direction if both are free
         if (canDownLeft && canDownRight)
-            if (Random() < 0.5)
+            if (RandomFloat(0.0f, 1.0f) < 0.5f)
                 newGrid[row + 1][col - 1] = std::move(currGrid[row][col]);
             else
                 newGrid[row + 1][col + 1] = std::move(currGrid[row][col]);
@@ -58,6 +50,4 @@ void SandParticle::Update(
         else
             newGrid[row][col] = std::move(currGrid[row][col]);
     }
-
-
 }

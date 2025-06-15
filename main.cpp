@@ -2,19 +2,19 @@
 #include <vector>
 #include <memory>
 #include <iostream>
-#include "Particle/Particle.hpp"
-#include "Particle/ParticleSand.hpp"
-#include "Particle/ParticleEmpty.hpp"
-#include "Simulation/Simulation.hpp"
+#include "Lib/Particle/Particle.hpp"
+#include "Lib/Particle/ParticleSand.hpp"
+#include "Lib/Particle/ParticleEmpty.hpp"
+#include "Lib/Simulation/Simulation.hpp"
 
-const int SCREEN_WIDTH = 1400;
-const int SCREEN_HEIGHT = 900;
+constexpr int SCREEN_WIDTH = 1500;
+constexpr int SCREEN_HEIGHT = 900;
     
-const int PARTICLE_SIZE = 20;
+constexpr int PARTICLE_SIZE = 15;
 
-const int FPS = 60;
+constexpr int FPS = 60;
 
-const float UPDATE_RATE = 1.0f / FPS + 0.02f;
+constexpr float SPAWN_RATE = 0.07f;
 
 int main()
 {
@@ -30,10 +30,10 @@ int main()
     SetWindowSize(SCREEN_WIDTH, SCREEN_HEIGHT);
     SetWindowPosition(windowPosX, windowPosY);
 
-    const int ROWS = int(SCREEN_HEIGHT / PARTICLE_SIZE);
-    const int COLS = int(SCREEN_WIDTH / PARTICLE_SIZE);
+    constexpr int ROWS = int(SCREEN_HEIGHT / PARTICLE_SIZE);
+    constexpr int COLS = int(SCREEN_WIDTH / PARTICLE_SIZE);
     
-    Simulation sim(ROWS, COLS, PARTICLE_SIZE);
+    Simulation sim(ROWS, COLS, PARTICLE_SIZE, 5, 2);
 
     SetTargetFPS(FPS);
 
@@ -46,24 +46,16 @@ int main()
 
         tick += dt;
 
-        if (tick > UPDATE_RATE)
+        if (tick > SPAWN_RATE)
         {
             // throttle particle spawning to match update rate
             // if they spawn too fast they WILL move incorrectly (mid air shifting for sand particles)
-            tick -= UPDATE_RATE;
+            tick -= SPAWN_RATE;
             canSpawnParticle = true;
         }
 
         if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && canSpawnParticle) 
-        {
-            Vector2 mouse = GetMousePosition();
-            int gridX = int(mouse.y) / PARTICLE_SIZE;
-            int gridY = int(mouse.x) / PARTICLE_SIZE;
-
-            // mouse coordinate might be off-screen — check bounds first
-            if (gridX >= 0 && gridX < ROWS && gridY >= 0 && gridY < COLS)
-                sim.currentGrid[gridX][gridY] = std::make_unique<SandParticle>(PARTICLE_SIZE);
-        }
+            sim.SpawnParticles(GetMousePosition());
 
         sim.Update();
 
@@ -73,7 +65,6 @@ int main()
             sim.Render(0, 0);
 
             DrawFPS(10, 10);
-
         EndDrawing();
 
         sim.Reset();
